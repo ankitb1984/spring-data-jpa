@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * @author Jens Schauder
  * @author Oliver Gierke
  * @author Christoph Strobl
+ * @author Christian Wörz
  */
 public class HidingClassLoader extends ShadowingClassLoader {
 
@@ -80,7 +81,7 @@ public class HidingClassLoader extends ShadowingClassLoader {
 		Assert.notNull(types, "Types must not be null!");
 
 		return new HidingClassLoader(Arrays.stream(types)//
-				.map(it -> it.getName())//
+				.map(Class::getName)//
 				.collect(Collectors.toList()));
 	}
 

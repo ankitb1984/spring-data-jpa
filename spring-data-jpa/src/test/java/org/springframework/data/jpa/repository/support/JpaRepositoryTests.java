@@ -17,9 +17,6 @@ package org.springframework.data.jpa.repository.support;
 
 import static org.assertj.core.api.Assertions.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +35,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 /**
  * Integration test for {@link JpaRepository}.
  *
@@ -46,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jens Schauder
  * @author Greg Turnquist
  * @author Krzysztof Krason
+ * @author Christian Wörz
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:infrastructure.xml" })
@@ -146,9 +147,9 @@ class JpaRepositoryTests {
 		 * Wrap a {@link List} inside an {@link Iterable} to verify that {@link SimpleJpaRepository} can properly convert a
 		 * pure {@link Iterable} to a {@link Collection}.
 		 */
-		Iterable<SampleEntityPK> ids = new Iterable<SampleEntityPK>() {
+		Iterable<SampleEntityPK> ids = new Iterable<>() {
 
-			private List<SampleEntityPK> ids = Arrays.asList(new SampleEntityPK("one", "eins"),
+			private final List<SampleEntityPK> ids = Arrays.asList(new SampleEntityPK("one", "eins"),
 					new SampleEntityPK("three", "drei"));
 
 			@NotNull

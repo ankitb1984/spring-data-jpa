@@ -16,9 +16,11 @@
 package org.springframework.data.jpa.domain.sample;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author Mark Paluch
+ * @author Christian Wörz
  * @see <a href="download.oracle.com/otn-pub/jcp/persistence-2_1-fr-eval-spec/JavaPersistence.pdf">Final JPA 2.1
  *      Specification 2.4.1.3 Derived Identities Example 2</a>
  */
@@ -56,14 +58,12 @@ public class ItemId implements Serializable {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof ItemId))
+		if (!(o instanceof ItemId itemId))
 			return false;
 
-		ItemId itemId = (ItemId) o;
-
-		if (id != null ? !id.equals(itemId.id) : itemId.id != null)
+		if (!Objects.equals(id, itemId.id))
 			return false;
-		return manufacturerId != null ? manufacturerId.equals(itemId.manufacturerId) : itemId.manufacturerId == null;
+		return Objects.equals(manufacturerId, itemId.manufacturerId);
 	}
 
 	@Override

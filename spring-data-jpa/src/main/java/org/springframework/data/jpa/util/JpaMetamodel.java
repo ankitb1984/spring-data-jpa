@@ -18,9 +18,15 @@ package org.springframework.data.jpa.util;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.data.util.Lazy;
+import org.springframework.data.util.StreamUtils;
+import org.springframework.util.Assert;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.metamodel.EntityType;
@@ -29,17 +35,13 @@ import jakarta.persistence.metamodel.Metamodel;
 import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.persistence.metamodel.Type.PersistenceType;
 
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.data.util.Lazy;
-import org.springframework.data.util.StreamUtils;
-import org.springframework.util.Assert;
-
 /**
  * Wrapper around the JPA {@link Metamodel} to be able to apply some fixes against bugs in provider implementations.
  *
  * @author Oliver Gierke
  * @author Mark Paluch
  * @author Sylvère Richard
+ * @author Christian Wörz
  */
 public class JpaMetamodel {
 
@@ -65,12 +67,11 @@ public class JpaMetamodel {
 
 		this.managedTypes = Lazy.of(() -> metamodel.getManagedTypes().stream() //
 				.map(ManagedType::getJavaType) //
-				.filter(it -> it != null) //
+				.filter(Objects::nonNull) //
 				.collect(StreamUtils.toUnmodifiableSet()));
 
 		this.jpaEmbeddables = Lazy.of(() -> metamodel.getEmbeddables().stream() //
-				.map(ManagedType::getJavaType)
-				.filter(it -> it != null)
+				.map(ManagedType::getJavaType).filter(Objects::nonNull)
 				.filter(it -> AnnotatedElementUtils.isAnnotated(it, Embeddable.class))
 				.collect(StreamUtils.toUnmodifiableSet()));
 	}
@@ -105,7 +106,7 @@ public class JpaMetamodel {
 		return metamodel.getEntities().stream() //
 				.filter(it -> entity.equals(it.getJavaType())) //
 				.findFirst() //
-				.flatMap(it -> getSingularIdAttribute(it)) //
+				.flatMap(JpaMetamodel::getSingularIdAttribute) //
 				.filter(it -> it.getJavaType().equals(attributeType)) //
 				.map(it -> it.getName().equals(name)) //
 				.orElse(false);

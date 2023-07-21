@@ -15,10 +15,12 @@
  */
 package org.springframework.data.jpa.repository.query;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.ParameterExpression;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,9 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.ParameterExpression;
+
 /**
  * Helper class to allow easy creation of {@link ParameterMetadata}s.
  *
@@ -46,6 +51,7 @@ import org.springframework.util.ObjectUtils;
  * @author Jens Schauder
  * @author Andrey Kovalev
  * @author Yuriy Tsarkov
+ * @author Christian Wörz
  */
 class ParameterMetadataProvider {
 
@@ -241,17 +247,12 @@ class ParameterMetadataProvider {
 
 			if (String.class.equals(expression.getJavaType()) && !noWildcards) {
 
-				switch (type) {
-					case STARTING_WITH:
-						return String.format("%s%%", escape.escape(unwrapped.toString()));
-					case ENDING_WITH:
-						return String.format("%%%s", escape.escape(unwrapped.toString()));
-					case CONTAINING:
-					case NOT_CONTAINING:
-						return String.format("%%%s%%", escape.escape(unwrapped.toString()));
-					default:
-						return unwrapped;
-				}
+				return switch (type) {
+					case STARTING_WITH -> String.format("%s%%", escape.escape(unwrapped.toString()));
+					case ENDING_WITH -> String.format("%%%s", escape.escape(unwrapped.toString()));
+					case CONTAINING, NOT_CONTAINING -> String.format("%%%s%%", escape.escape(unwrapped.toString()));
+					default -> unwrapped;
+				};
 			}
 
 			return Collection.class.isAssignableFrom(expression.getJavaType()) //

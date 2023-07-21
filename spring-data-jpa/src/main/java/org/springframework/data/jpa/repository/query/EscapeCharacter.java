@@ -27,6 +27,7 @@ import org.springframework.lang.Nullable;
  *
  * @author Jens Schauder
  * @author Oliver Drotbohm
+ * @author Christian Wörz
  */
 public final class EscapeCharacter {
 
@@ -69,11 +70,10 @@ public final class EscapeCharacter {
 			return true;
 		}
 
-		if (!(o instanceof EscapeCharacter)) {
+		if (!(o instanceof EscapeCharacter that)) {
 			return false;
 		}
 
-		EscapeCharacter that = (EscapeCharacter) o;
 		return escapeCharacter == that.escapeCharacter;
 	}
 

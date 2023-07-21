@@ -24,6 +24,7 @@ import java.util.List;
  * An ANTLR {@link org.antlr.v4.runtime.tree.ParseTreeVisitor} that renders a JPQL query without making any changes.
  *
  * @author Greg Turnquist
+ * @author Christian Wörz
  * @since 3.1
  */
 class JpqlQueryRenderer extends JpqlBaseVisitor<List<JpaQueryParsingToken>> {
@@ -142,12 +143,8 @@ class JpqlQueryRenderer extends JpqlBaseVisitor<List<JpaQueryParsingToken>> {
 
 		tokens.addAll(visit(ctx.range_variable_declaration()));
 
-		ctx.join().forEach(joinContext -> {
-			tokens.addAll(visit(joinContext));
-		});
-		ctx.fetch_join().forEach(fetchJoinContext -> {
-			tokens.addAll(visit(fetchJoinContext));
-		});
+		ctx.join().forEach(joinContext -> tokens.addAll(visit(joinContext)));
+		ctx.fetch_join().forEach(fetchJoinContext -> tokens.addAll(visit(fetchJoinContext)));
 
 		return tokens;
 	}
@@ -2008,9 +2005,7 @@ class JpqlQueryRenderer extends JpqlBaseVisitor<List<JpaQueryParsingToken>> {
 
 		tokens.add(new JpaQueryParsingToken(ctx.CASE()));
 
-		ctx.when_clause().forEach(whenClauseContext -> {
-			tokens.addAll(visit(whenClauseContext));
-		});
+		ctx.when_clause().forEach(whenClauseContext -> tokens.addAll(visit(whenClauseContext)));
 
 		tokens.add(new JpaQueryParsingToken(ctx.ELSE()));
 		tokens.addAll(visit(ctx.scalar_expression()));
@@ -2040,9 +2035,7 @@ class JpqlQueryRenderer extends JpqlBaseVisitor<List<JpaQueryParsingToken>> {
 		tokens.add(new JpaQueryParsingToken(ctx.CASE()));
 		tokens.addAll(visit(ctx.case_operand()));
 
-		ctx.simple_when_clause().forEach(simpleWhenClauseContext -> {
-			tokens.addAll(visit(simpleWhenClauseContext));
-		});
+		ctx.simple_when_clause().forEach(simpleWhenClauseContext -> tokens.addAll(visit(simpleWhenClauseContext)));
 
 		tokens.add(new JpaQueryParsingToken(ctx.ELSE()));
 		tokens.addAll(visit(ctx.scalar_expression()));

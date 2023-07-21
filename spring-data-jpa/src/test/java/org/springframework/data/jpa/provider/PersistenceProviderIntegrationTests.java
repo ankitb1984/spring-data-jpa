@@ -15,9 +15,7 @@
  */
 package org.springframework.data.jpa.provider;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import jakarta.persistence.EntityManager;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +33,10 @@ import org.springframework.data.jpa.repository.sample.ProductRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import jakarta.persistence.EntityManager;
 
 /**
  * Integration tests for {@link PersistenceProvider}.
@@ -45,6 +44,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author Oliver Gierke
  * @author Jens Schauder
  * @author Krzysztof Krason
+ * @author Christian Wörz
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
@@ -67,19 +67,15 @@ public abstract class PersistenceProviderIntegrationTests {
 	@Test // DATAJPA-630
 	public void testname() {
 
-		new TransactionTemplate(transactionManager).execute(new TransactionCallback<Void>() {
+		new TransactionTemplate(transactionManager).execute((TransactionCallback<Void>) status -> {
 
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
+			Product product = categories.findById(category.getId()).get().getProduct();
+			ProxyIdAccessor accessor = PersistenceProvider.fromEntityManager(em);
 
-				Product product = categories.findById(category.getId()).get().getProduct();
-				ProxyIdAccessor accessor = PersistenceProvider.fromEntityManager(em);
+			assertThat(accessor.shouldUseAccessorFor(product)).isTrue();
+			assertThat(accessor.getIdentifierFrom(product)).hasToString(product.getId().toString());
 
-				assertThat(accessor.shouldUseAccessorFor(product)).isTrue();
-				assertThat(accessor.getIdentifierFrom(product)).hasToString(product.getId().toString());
-
-				return null;
-			}
+			return null;
 		});
 	}
 

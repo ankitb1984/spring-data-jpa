@@ -15,16 +15,16 @@
  */
 package org.springframework.data.jpa.repository.query;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.ReturnedType;
+import org.springframework.data.repository.query.parser.PartTree;
+import org.springframework.lang.Nullable;
+
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.ReturnedType;
-import org.springframework.data.repository.query.parser.PartTree;
-import org.springframework.lang.Nullable;
 
 /**
  * Special {@link JpaQueryCreator} that creates a count projecting query.
@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
  * @author Marc Lefrançois
  * @author Mark Paluch
  * @author Greg Turnquist
+ * @author Christian Wörz
  */
 public class JpaCountQueryCreator extends JpaQueryCreator {
 
@@ -55,17 +56,17 @@ public class JpaCountQueryCreator extends JpaQueryCreator {
 	}
 
 	@Override
-	protected CriteriaQuery<? extends Object> createCriteriaQuery(CriteriaBuilder builder, ReturnedType type) {
+	protected CriteriaQuery<?> createCriteriaQuery(CriteriaBuilder builder, ReturnedType type) {
 
 		return builder.createQuery(Long.class);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected CriteriaQuery<? extends Object> complete(@Nullable Predicate predicate, Sort sort,
-			CriteriaQuery<? extends Object> query, CriteriaBuilder builder, Root<?> root) {
+	protected CriteriaQuery<?> complete(@Nullable Predicate predicate, Sort sort, CriteriaQuery<?> query,
+			CriteriaBuilder builder, Root<?> root) {
 
-		CriteriaQuery<? extends Object> select = query.select(getCountQuery(query, builder, root));
+		CriteriaQuery<?> select = query.select(getCountQuery(query, builder, root));
 		return predicate == null ? select : select.where(predicate);
 	}
 

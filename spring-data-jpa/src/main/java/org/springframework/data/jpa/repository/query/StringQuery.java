@@ -50,6 +50,7 @@ import org.springframework.util.StringUtils;
  * @author Diego Krupitza
  * @author Greg Turnquist
  * @author Yuriy Tsarkov
+ * @author Christian Wörz
  */
 class StringQuery implements DeclaredQuery {
 
@@ -264,12 +265,9 @@ class StringQuery implements DeclaredQuery {
 				}
 
 				switch (ParameterBindingType.of(typeSource)) {
-
-					case LIKE:
-
+					case LIKE -> {
 						Type likeType = LikeParameterBinding.getLikeTypeFrom(matcher.group(2));
 						replacement = matcher.group(3);
-
 						if (parameterIndex != null) {
 							checkAndRegister(new LikeParameterBinding(parameterIndex, likeType, expression), bindings);
 						} else {
@@ -277,25 +275,17 @@ class StringQuery implements DeclaredQuery {
 
 							replacement = ":" + parameterName;
 						}
-
-						break;
-
-					case IN:
-
+					}
+					case IN -> {
 						if (parameterIndex != null) {
 							checkAndRegister(new InParameterBinding(parameterIndex, expression), bindings);
 						} else {
 							checkAndRegister(new InParameterBinding(parameterName, expression), bindings);
 						}
-
-						break;
-
-					case AS_IS: // fall-through we don't need a special parameter binding for the given parameter.
-					default:
-
-						bindings.add(parameterIndex != null //
-								? new ParameterBinding(null, parameterIndex, expression) //
-								: new ParameterBinding(parameterName, null, expression));
+					} // fall-through we don't need a special parameter binding for the given parameter.
+					default -> bindings.add(parameterIndex != null //
+							? new ParameterBinding(null, parameterIndex, expression) //
+							: new ParameterBinding(parameterName, null, expression));
 				}
 
 				if (replacement != null) {
@@ -589,11 +579,9 @@ class StringQuery implements DeclaredQuery {
 		@Override
 		public boolean equals(Object obj) {
 
-			if (!(obj instanceof ParameterBinding)) {
+			if (!(obj instanceof ParameterBinding that)) {
 				return false;
 			}
-
-			ParameterBinding that = (ParameterBinding) obj;
 
 			return nullSafeEquals(this.name, that.name) && nullSafeEquals(this.position, that.position)
 					&& nullSafeEquals(this.expression, that.expression);
@@ -755,11 +743,9 @@ class StringQuery implements DeclaredQuery {
 		@Override
 		public boolean equals(Object obj) {
 
-			if (!(obj instanceof LikeParameterBinding)) {
+			if (!(obj instanceof LikeParameterBinding that)) {
 				return false;
 			}
-
-			LikeParameterBinding that = (LikeParameterBinding) obj;
 
 			return super.equals(obj) && this.type.equals(that.type);
 		}

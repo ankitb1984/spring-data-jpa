@@ -15,8 +15,6 @@
  */
 package org.springframework.data.jpa.repository.support;
 
-import jakarta.persistence.EntityManager;
-
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -40,6 +38,8 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.AbstractJPAQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 
+import jakarta.persistence.EntityManager;
+
 /**
  * Helper instance to ease access to Querydsl JPA query API.
  *
@@ -48,6 +48,7 @@ import com.querydsl.jpa.impl.JPAQuery;
  * @author Mark Paluch
  * @author Christoph Strobl
  * @author Marcus Voltolim
+ * @author Christian Wörz
  */
 public class Querydsl {
 
@@ -76,15 +77,11 @@ public class Querydsl {
 	 */
 	public <T> AbstractJPAQuery<T, JPAQuery<T>> createQuery() {
 
-		switch (provider) {
-			case ECLIPSELINK:
-				return new JPAQuery<>(em, EclipseLinkTemplates.DEFAULT);
-			case HIBERNATE:
-				return new JPAQuery<>(em, HQLTemplates.DEFAULT);
-			case GENERIC_JPA:
-			default:
-				return new JPAQuery<>(em);
-		}
+		return switch (provider) {
+			case ECLIPSELINK -> new JPAQuery<>(em, EclipseLinkTemplates.DEFAULT);
+			case HIBERNATE -> new JPAQuery<>(em, HQLTemplates.DEFAULT);
+			default -> new JPAQuery<>(em);
+		};
 	}
 
 	/**
@@ -201,18 +198,11 @@ public class Querydsl {
 
 		Assert.notNull(nullHandling, "NullHandling must not be null");
 
-		switch (nullHandling) {
-
-			case NULLS_FIRST:
-				return NullHandling.NullsFirst;
-
-			case NULLS_LAST:
-				return NullHandling.NullsLast;
-
-			case NATIVE:
-			default:
-				return NullHandling.Default;
-		}
+		return switch (nullHandling) {
+			case NULLS_FIRST -> NullHandling.NullsFirst;
+			case NULLS_LAST -> NullHandling.NullsLast;
+			default -> NullHandling.Default;
+		};
 	}
 
 	/**
