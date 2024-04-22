@@ -85,4 +85,5 @@ public interface CrudMethodMetadata {
 	 * @since 1.9
 	 */
 	Method getMethod();
+
 }

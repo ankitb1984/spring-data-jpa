@@ -18,9 +18,9 @@ package org.springframework.data.jpa.repository.support;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.lang.reflect.Method;
-
 import jakarta.persistence.LockModeType;
+
+import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;

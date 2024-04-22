@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -274,6 +275,7 @@ class CrudMethodMetadataPostProcessor implements RepositoryProxyPostProcessor, B
 		public Method getMethod() {
 			return method;
 		}
+
 	}
 
 	private static class ThreadBoundTargetSource implements TargetSource {

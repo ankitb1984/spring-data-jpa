@@ -61,6 +61,8 @@ import org.springframework.data.jpa.repository.support.FetchableFluentQueryBySpe
 import org.springframework.data.jpa.repository.support.FluentQuerySupport.ScrollQueryFactory;
 import org.springframework.data.jpa.repository.support.QueryHints.NoHints;
 import org.springframework.data.jpa.support.PageableUtils;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.data.util.ProxyUtils;
@@ -103,6 +105,7 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 	private final PersistenceProvider provider;
 
 	private @Nullable CrudMethodMetadata metadata;
+	private @Nullable ProjectionFactory projectionFactory;
 	private EscapeCharacter escapeCharacter = EscapeCharacter.DEFAULT;
 
 	/**
@@ -135,16 +138,21 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 	 * Configures a custom {@link CrudMethodMetadata} to be used to detect {@link LockModeType}s and query hints to be
 	 * applied to queries.
 	 *
-	 * @param crudMethodMetadata
+	 * @param metadata
 	 */
 	@Override
-	public void setRepositoryMethodMetadata(CrudMethodMetadata crudMethodMetadata) {
-		this.metadata = crudMethodMetadata;
+	public void setRepositoryMethodMetadata(CrudMethodMetadata metadata) {
+		this.metadata = metadata;
 	}
 
 	@Override
 	public void setEscapeCharacter(EscapeCharacter escapeCharacter) {
 		this.escapeCharacter = escapeCharacter;
+	}
+
+	@Override
+	public void setProjectionFactory(ProjectionFactory projectionFactory) {
+		this.projectionFactory = projectionFactory;
 	}
 
 	@Nullable
@@ -524,8 +532,8 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 
 		SpecificationScrollDelegate<T> scrollDelegate = new SpecificationScrollDelegate<>(scrollFunction,
 				entityInformation);
-		FetchableFluentQuery<T> fluentQuery = new FetchableFluentQueryBySpecification<>(spec, domainClass, finder,
-				scrollDelegate, this::count, this::exists, this.entityManager);
+		FetchableFluentQueryBySpecification<?, T> fluentQuery = new FetchableFluentQueryBySpecification<>(spec, domainClass, finder,
+				scrollDelegate, this::count, this::exists, this.entityManager, getProjectionFactory());
 
 		return queryFunction.apply((FetchableFluentQuery<S>) fluentQuery);
 	}
@@ -901,6 +909,15 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 		if (metadata.getComment() != null && provider.getCommentHintKey() != null) {
 			consumer.accept(provider.getCommentHintKey(), provider.getCommentHintValue(this.metadata.getComment()));
 		}
+	}
+
+	private ProjectionFactory getProjectionFactory() {
+
+		if (projectionFactory == null) {
+			projectionFactory = new SpelAwareProxyProjectionFactory();
+		}
+
+		return projectionFactory;
 	}
 
 	/**
